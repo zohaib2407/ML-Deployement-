@@ -116,7 +116,7 @@ Below is a snapshot of results page when we uploaded  image of a cat:
 
 ![image](https://user-images.githubusercontent.com/35283246/163794264-b8af2856-0605-4bdb-b905-078e84d2f2cf.png)
 
-## 3.	Using GCP’s ‘Cloud Run’ to deploy the containerized docker image  (Zohaib)
+## 3.	Using GCP’s ‘Cloud Run’ to deploy the containerized docker image
 
 Through this method we will demonstrate how to build a Docker image, containerize, and deploy it, and access it via HTTP requests using GCP ‘cloud run’ functionality. A few of the functionalities that we explored are:
 
@@ -160,6 +160,41 @@ $ gcloud run deploy --image gcr.io/ deploy-ml-342403/predict --platform managed
 
 Challenge Faced: When you run the first command it asks for two sequential inputs from  the user. First is the region where my GCP account is hosted. We need to select this from the given options, and it needs to be correct. Hence, we had to explore our gcp account to find our server’s region. Second is the name of the container that is deployed. Please note that the function name doesn’t accept any ‘_’.
 The ‘deploy-ml-342403’ is the name of my project on GCP and ‘predict’ is the flask gateway function in my script. After the two commands ran successfully, we got a HTTP link to connect to the containerized model that was deployed over cloud. Below is the screenshot of the deployed container: 
+
+![image](https://user-images.githubusercontent.com/35283246/163794458-b48b328c-6e91-4db2-9801-9192a1a1e252.png)
+
+Link to our deployed container : https:/getprediction-66cr5qhjaq-uc.a.run.app
+We predicted the labels of few images using our container: 
+
+![image](https://user-images.githubusercontent.com/35283246/163794475-aa76d2e3-d952-4aee-b888-1feeb57ea75b.png)
+
+## 4.	Using GCP cloud function 
+
+GCP cloud function is one of the services that fall under Compute section of the service that Google provides. GCP cloud function automatically runs our code without requiring us to manage service. We don’t require any server to run or manage all we need to do is write the code and upload it to the GCP Cloud function and the GCP Cloud function will take care of it.
+
+Few of the functionalities we explored are:
+
+•	GCP Cloud Run
+•	GCP Cloud Storage
+
+
+A.	Flask:<br>
+
+First, we create an object type flask, so that this object maps a URL to our function. When we hit the URL server will know what URL we are referring to and our function will execute. 
+app = Flask(__name__) ---- default way to create an flask object
+
+B:   GCP API and its setting:<br>
+
+To expose our GCP Cloud function to the outside world, we use an API gateway. Its main use allows us to build an HTTP endpoint that gets a URL that can be accessed which invoke the GCP cloud function behind the scenes. By adding a trigger in the GCP cloud function we select HTTP API as an option that generates API endpoint.
+
+C:   GCP Cloud Storage and Cloud Function:<br>
+GCP Cloud Storage can be code, libraries, or other dependencies. We can upload the GCP Cloud Storage once, reference with to any GCP cloud function. We uploaded our saved model to the storage and linked this with Cloud Run where we upload the code (main.py) and libraries (requirement.txt), pick compatible architecture and runtime.
+(requirement.txt)-libraries require for our model:
+
+Challenged Faced: While the GCP compute engine runs correctly, the GCP cloud function fails with the “No module name torch/torchvision” issue. So we tried to install the torch but get an issue about space because the GPU version is over 600MB. So, we tried to install the torch file for the CPU version.
+
+
+
 
 
 
