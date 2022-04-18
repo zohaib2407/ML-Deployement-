@@ -63,4 +63,109 @@ Below is a snapshot on how we accessed the model from our local machine and rece
 
 ![image](https://user-images.githubusercontent.com/35283246/163793952-35c873c5-2cde-45ba-a799-85982063d264.png)
 
+## 2.	Deploying the Pytorch model with Flask and Heroku 
+
+Link to our Heroku Application: https://ml-delpoy.herokuapp.com/
+
+In this, we will create a flask app with a REST API that returns the result as json data and then we will deploy it to Heroku using our GitHub repository. The Heroku based application will allow us to upload an image from local machine through a web page and then return predictions on the uploaded image. Few of the technologies that we leveraged to pull this deployment are:
+
+1.Flask
+2. HTML
+3. CSS 
+4. Git
+5. Heroku
+6. Pytorch
+7. GitBash
+
+To deploy the model on Heroku, we needed additional setup up. First, in addition to all the necessary files, we need to create a ‘procfile’. Heroku apps include a ‘procfile’ that specifies the commands that are executed by the app on startup. We created a procfile with the command ‘web: gunicorn wsgi:app’ and saved it locally. Gunicorn stands for ‘Green Unicorn’. ‘Green Unicorn’ is a Python WSGI HTTP Server for UNIX and WSGI stands for Web Server Gateway Interface, and it is needed for Python web applications. This web server gateway helps us to serve static pages like HTML and CSS.
+
+Second, we created our ‘requirements.txt’ which lists all the packages/modules that needs to be installed for the script to run. Some of the packages are torch, torchvision, gunicorn, numpy, pandas, flask, pickle.  
+
+Third, we built two static webpages using HTML, that acts as the front interface for the Heroku app and allows users to upload an image for our model and get the predictions back.  We used CSS to style and layout the static webpage. We used ‘render_template’ function from flask to generate the html template containing the static data to be displayed.
+
+All the required files for building the Heroku application are: 
+Procfile, model_fn.pth, requirements.txt, val_data_classes.pkl, index.html, result.html, style.css
+
+All the files were then uploaded to our GitHub repository. You can follow the link to see all the dependencies.
+
+Challenge Faced :  While we were uploading the files to the repository, we faced a challenge in uploading the trained model parameters (model_fn.pth) to our GitHub account. GitHub allows upload up to a maximum size of 25mb over web. And since our ‘model_fn.pth’ was of 44mb, we were not able to upload it to our repository over web. To overcome this, we used GitBash CLI to first clone the  GitHub repository on our local machine. Then, we transferred the file ‘model_fn.pth’ to the locally created copy of the repository. After that we uploaded the entire repository from our local machine to GitHub. Few of the commands used are :
+$ git add .
+$ git commit -m "Add existing file"
+$ git push origin your-branch
+
+Next, we go to create Heroku and create a free-tier account with it. After creating the account we will create the application using ‘Create App’ functionality of Heroku. Heroku allows three different deployment methods for your application : 
+
+•	Using Heroku CLI<br>
+•	Using GitHub<br>
+•	Using Container Registry<br>
+
+We chose the second option. Using this, we linked our GitHub account with Heroku and chose the repository which had all the files we uploaded. Once linked, we have two options to choose for deploying our application, ‘Automatic Deploys’ and ‘Manual Deploys’. We chose manual deployment for the one time showcase. 
+Challenge Faced :  Once you hit ‘deploy’ the Heroku runs the requirements.txt file from your linked repository and install all the mentioned modules. Now, two of the modules were ‘torch’ and ‘torchvision’. Since ‘torch’ is a big module of around 800mb and Heroku gives a container space of 500mb per deployment, we were unable to proceed with the deployment. Hence, to resolve this, we installed specific CPU only versions of torch and torchvision which is around 45mb:
+
+torch==1.7.1+cpu
+torchvision==0.8.2+cpu
+
+After successful deployment, the application is now live on Heroku’s server, and we can access it using the link mentioned. 
+Please note : The classifier has been trained on images from ten different classes. And hence, to allow it to make better predictions, please upload an image from the above mentioned ten classes. 
+
+Below is a snapshot of landing page where we upload image:
+
+![image](https://user-images.githubusercontent.com/35283246/163794233-e3c34f1a-3446-4f75-95ea-e5e36e3b2c8f.png)
+
+Below is a snapshot of results page when we uploaded  image of a cat:
+
+![image](https://user-images.githubusercontent.com/35283246/163794264-b8af2856-0605-4bdb-b905-078e84d2f2cf.png)
+
+## 3.	Using GCP’s ‘Cloud Run’ to deploy the containerized docker image  (Zohaib)
+
+Through this method we will demonstrate how to build a Docker image, containerize, and deploy it, and access it via HTTP requests using GCP ‘cloud run’ functionality. A few of the functionalities that we explored are:
+
+•	Google Cloud Platform
+•	GCP API
+•	GCP Cloud Run
+•	Google Cloud SDK and CLI
+•	Docker images and containers
+
+Below are the outlined steps:
+
+A.	Write App (Flask and Pytorch) :<br>
+Here we used the same components (python script, saved model, requirements file) that we used while building  web application using Heroku.
+
+B.	Setting Up Cloud:<br>
+In this step, we first created an account using the free tier on google cloud platform. Next, we created a new project and selecting all the necessary details like name, region, etc. After that, we had to activate two APIs of GCP i.e. cloud run api and cloud build api. Google Cloud APIs are programmatic interfaces to Google Cloud Platform services. These api allows us to use the power of gcp computing with different applications we build.
+
+C.	Installing and Initializing Google Cloud SDK:<br>
+
+Using this step, we installed the google cloud’s software development kit (SDK) on our local machine. This kit is a set of tools that are used to manage applications and resources that are hosted on google cloud platform.
+After installing, we will use the gcp CLI on our local machine to initialize it. We use the command $ gcloud init. This command  sets the account property in the configuration to the specified account.
+
+D.	Creating dockerfile, .dockerignore:<br>
+
+Here, we will create three different files to be used as part of the docker image. First, the docker file is created in the same directory on local machine where all our files are located.
+Few lines of command from our dockerfile are: 
+ FROM python:3.9-slim
+ ENV PYTHONUNBUFFERED True
+ ENV APP_HOME /app   => ‘app’ indicates the flask app that we created
+ WORKDIR $APP_HOME
+ COPY . ./
+ RUN pip install -r requirements.txt
+
+Next, we will create ‘.dockerignore’. ‘.dockerignore’ file is used to ignore files and folders when you try to build a Docker Image. We specified the list of files and directories inside the ‘.dockerignore’ file.
+ 
+E.	GCP Cloud Run build and Deploy:<br>
+
+Now after all our files were build and saved at one location. We will build and deploy the docker container over GCP cloud run. For this purpose we will use two different commands. Below, first command containerizes the docker image and the second command deploy the container to cloud run.
+$ gcloud builds submit --tag gcr.io/deploy-ml-342403/predict
+$ gcloud run deploy --image gcr.io/ deploy-ml-342403/predict --platform managed
+
+Challenge Faced: When you run the first command it asks for two sequential inputs from  the user. First is the region where my GCP account is hosted. We need to select this from the given options, and it needs to be correct. Hence, we had to explore our gcp account to find our server’s region. Second is the name of the container that is deployed. Please note that the function name doesn’t accept any ‘_’.
+The ‘deploy-ml-342403’ is the name of my project on GCP and ‘predict’ is the flask gateway function in my script. After the two commands ran successfully, we got a HTTP link to connect to the containerized model that was deployed over cloud. Below is the screenshot of the deployed container: 
+
+
+
+
+
+
+
+
 
