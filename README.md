@@ -13,13 +13,21 @@ MLOps is the amalgamation of machine learning, data engineering and DevOps. Thro
 In this project,
 
 •	We will build an image classifier using convolution neural network and Pytorch module from python. 
+
 •	We will then save the model parameters and load the trained image classifier every time when predicting  new images using different tools and technologies from the MLOps community
+
 •	We will deploy the image classifier on different remote platforms and make them accessible over internet with HTTP endpoints. We will use Python and Flask web framework with a flask app
+
 •	We will use 4 different ways to demonstrate how we can deploy a deep neural network  model and make it respond to the HTTP requests with the predicted label of the image and the Image id
+
 •	First, we will deploy the model on our remote virtual machine on AWS and access it from our local machine using HTTP via python’s inbuilt ‘request’ package
+
 •	Second, we will build a publicly hosted web application using Heroku integrating the GitHub repository which will enable our application to run, take inputs from the user using HTML and CSS and display the predicted label and id
+
 •	Third, we will use GCP Cloud run to containerize a Docker Image and deploy it. We will then make predictions using HTTP triggers to the docker container
+
 •	Fourth, we will deploy our model using GCP Cloud Function and access it remotely to spill out predictions for new input images 
+
 •	At the end we will draw a comparative evaluation of the different deployments used in the project
 
 ## Possible Solutions
